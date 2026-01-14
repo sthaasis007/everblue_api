@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 exports.createCustomer = asyncHandler(async (req, res) => {
-    const {name, email, username, password, phoneNumber} = req.body;
+    const {name, email, password, phoneNumber} = req.body;
 
     console.log("creating customer with name:", name);
 
@@ -18,7 +18,6 @@ exports.createCustomer = asyncHandler(async (req, res) => {
     const customer = await Customer.create({
         name,
         email,
-        username,
         password,
         phoneNumber
     });
@@ -51,7 +50,7 @@ exports.loginCustomer = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateCustomer = asyncHandler(async (req, res) => {
-    const { name, email, username, password, phoneNumber } = req.body;
+    const { name, email, password, phoneNumber } = req.body;
     
     const customer = await Customer.findById(req.params.id);
 
@@ -66,7 +65,6 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
     //update fields
     customer.name = name || customer.name;
     customer.email = email || customer.email;
-    customer.username = username || customer.username;
     customer.password = password || customer.password;
     customer.phoneNumber = phoneNumber || customer.phoneNumber;
 

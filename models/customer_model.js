@@ -19,12 +19,6 @@ const CustomerSchema = new mongoose.Schema({
             "Please add a valid email",
         ],
     },
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-    },
     password: {
         type: String,
         required: [true, "Please add a password"],
