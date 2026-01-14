@@ -3,15 +3,15 @@ const router = express.Router();
 const { protect } = require("../middleware/auth");
 
 const {
-  createStudent,
-  updateStudent,
-  deleteStudent,
-  loginStudent,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+  loginCustomer,
 } = require("../controllers/customer_controller");
 
-router.post("/", createStudent);
-router.post("/login", loginStudent);
-router.put("/:id", protect, updateStudent);
-router.delete("/:id", protect, deleteStudent);
+router.post("/", createCustomer);
+router.post("/login", loginCustomer);
+router.put("/:id", protect, updateCustomer);
+router.delete("/:id", protect, deleteCustomer);
 
 module.exports = router;
