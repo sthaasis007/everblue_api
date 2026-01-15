@@ -49,6 +49,16 @@ exports.loginCustomer = asyncHandler(async (req, res, next) => {
     sendTokenResponse(customer, 200, res);
 });
 
+exports.getAllCustomer = asyncHandler(async (req, res) => {
+  const customers = await Customer.find();
+
+  res.status(200).json({
+    success: true,
+    count: customers.length,
+    data: customers,
+  });
+});
+
 exports.updateCustomer = asyncHandler(async (req, res) => {
     const { name, email, password, phoneNumber } = req.body;
     
