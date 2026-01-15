@@ -7,9 +7,9 @@ const {
   updateCustomer,
   deleteCustomer,
   loginCustomer,
-} = require("../controllers/customer_controller");
+} = require("../controller/customer_controller");
 
-router.post("/", createCustomer);
+router.post("/signup", createCustomer);
 router.post("/login", loginCustomer);
 router.put("/:id", protect, updateCustomer);
 router.delete("/:id", protect, deleteCustomer);

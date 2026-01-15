@@ -1,4 +1,4 @@
-const Customer = require("../models/Customer");
+const Customer = require("../models/customer_model");
 const asyncHandler = require("../middleware/async");
 const fs = require("fs");
 const path = require("path");
@@ -58,8 +58,8 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Customer not found" });
     }
 
-    if (customer._id.toString() !== req.params._id.toString()) {
-        return res.status(401).json({ message: "Not authorized to update this customer" });
+    if (req.user._id.toString() !== req.params.id) {
+        return res.status(403).json({ message: "Not authorized to update this customer" });
     }
 
     //update fields
@@ -74,9 +74,13 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
 
     await customer.save();
 
+    //remove password from response
+    const customerResponse = customer.toObject();
+    delete customerResponse.password;
+
     res.status(200).json({
         success: true,
-        data: customer,
+        data: customerResponse,
     });
 });
 
@@ -87,11 +91,11 @@ exports.deleteCustomer = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Customer not found" });
     }
 
-    if (customer._id.toString() !== req.params._id.toString()) {
+    if (customer._id.toString() !== req.params.id) {
         return res.status(401).json({ message: "Not authorized to delete this customer" });
     }
 
-    await customer.findByIdAndDelete(req.params.id);
+    await customer.deleteOne();
 
     res.status(200).json({
         success: true,
