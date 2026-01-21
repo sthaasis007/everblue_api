@@ -30,6 +30,11 @@ const CustomerSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    profilePicture: {
+        type: String,
+        default: "default-profile.png",
+        trim: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 exports.createCustomer = asyncHandler(async (req, res) => {
-    const {name, email, password, phoneNumber} = req.body;
+    const {name, email, password, phoneNumber, profilePicture} = req.body;
 
     console.log("creating customer with name:", name);
 
@@ -19,7 +19,8 @@ exports.createCustomer = asyncHandler(async (req, res) => {
         name,
         email,
         password,
-        phoneNumber
+        phoneNumber,
+        profilePicture: profilePicture || "default-profile.png",
     });
 
     //remove password from response
@@ -60,7 +61,7 @@ exports.getAllCustomer = asyncHandler(async (req, res) => {
 });
 
 exports.updateCustomer = asyncHandler(async (req, res) => {
-    const { name, email, password, phoneNumber } = req.body;
+    const { name, email, password, phoneNumber, profilePicture } = req.body;
     
     const customer = await Customer.findById(req.params.id);
 
@@ -77,6 +78,7 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
     customer.email = email || customer.email;
     customer.password = password || customer.password;
     customer.phoneNumber = phoneNumber || customer.phoneNumber;
+  student.profilePicture = profilePicture || student.profilePicture;
 
     if (password) {
         customer.password = password;
@@ -104,6 +106,20 @@ exports.deleteCustomer = asyncHandler(async (req, res) => {
     if (customer._id.toString() !== req.params.id) {
         return res.status(401).json({ message: "Not authorized to delete this customer" });
     }
+      // Remove the student's profile picture if it exists
+    if (
+        student.profilePicture &&
+        student.profilePicture !== "default-profile.png"
+    ) {
+        const profilePicturePath = path.join(
+        __dirname,
+        "../public/profile_pictures",
+        student.profilePicture
+        );
+        if (fs.existsSync(profilePicturePath)) {
+        fs.unlinkSync(profilePicturePath);
+        }
+    }
 
     await customer.deleteOne();
 
@@ -113,6 +129,24 @@ exports.deleteCustomer = asyncHandler(async (req, res) => {
     });
 });
 
+exports.uploadProfilePicture = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).send({ message: "Please upload a photo file" });
+  }
+
+  // Check for the file size
+  if (req.file.size > process.env.MAX_FILE_UPLOAD) {
+    return res.status(400).send({
+      message: `Please upload an image less than ${process.env.MAX_FILE_UPLOAD} bytes`,
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: req.file.filename,
+    message: "Profile picture uploaded successfully",
+  });
+});
 
 // Get token from model, create cookie and send response
 

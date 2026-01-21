@@ -115,8 +115,8 @@ const customerRoutes = require("./routes/customer");
 app.use("/everblue/customers/login", authLimiter);
 app.use("/everblue/customers", customerRoutes);
 
-// const itemRoutes = require("./routes/item_route");
-// app.use("/api/v1/items", itemRoutes);
+const itemRoutes = require("./routes/item_route");
+app.use("/everblue/items", itemRoutes);
 
 // const commentRoutes = require("./routes/comment_route");
 // app.use("/api/v1/comments", commentRoutes);
