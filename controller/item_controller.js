@@ -5,7 +5,7 @@ const fs = require("fs");
 
 
 exports.createItem = asyncHandler(async (req, res) => {
-  const { itemName, description, type, category, media } =
+  const { itemName, description, type, price} =
     req.body;
 
   // Create the item
@@ -13,8 +13,7 @@ exports.createItem = asyncHandler(async (req, res) => {
     itemName,
     description,
     type,
-    category,
-    media,
+    price,
   });
 
   res.status(201).json({
@@ -35,11 +34,11 @@ exports.getAllItems = asyncHandler(async (req, res) => {
   const filter = {};
   if (req.query.type) filter.type = req.query.type;
   if (req.query.status) filter.status = req.query.status;
-  if (req.query.category) filter.category = req.query.category;
+  if (req.query.price) filter.price = req.query.price;
 
   const total = await Item.countDocuments(filter);
   const items = await Item.find(filter)
-    .populate("category", "name")
+    // .populate("price", "name")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -59,7 +58,7 @@ exports.getAllItems = asyncHandler(async (req, res) => {
 
 exports.getItemById = asyncHandler(async (req, res) => {
   const item = await Item.findById(req.params.id)
-    .populate("category", "name");
+    .populate("price", "name");
 
   if (!item) {
     return res.status(404).json({ message: "Item not found" });
@@ -71,16 +70,12 @@ exports.getItemById = asyncHandler(async (req, res) => {
   });
 });
 
-
-
-
 exports.updateItem = asyncHandler(async (req, res) => {
   const {
     itemName,
     description,
     type,
-    category,
-    media,
+    price,
     status,
   } = req.body;
 
@@ -90,19 +85,11 @@ exports.updateItem = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Item not found" });
   }
 
-  // Authorization check: Make sure user owns this item
-  if (item.reportedBy.toString() !== req.user._id.toString()) {
-    return res.status(403).json({
-      message: "Not authorized to update this item",
-    });
-  }
-
   // Update the item fields
   item.itemName = itemName || item.itemName;
   item.description = description || item.description;
   item.type = type || item.type;
-  item.category = category || item.category;
-  item.media = media || item.media;
+  item.price = price || item.price;
   item.status = status || item.status;
 
   await item.save();
@@ -120,28 +107,6 @@ exports.deleteItem = asyncHandler(async (req, res) => {
 
   if (!item) {
     return res.status(404).json({ message: "Item not found" });
-  }
-
-  // Authorization check: Make sure user owns this item
-  if (item.reportedBy.toString() !== req.user._id.toString()) {
-    return res.status(403).json({
-      message: "Not authorized to delete this item",
-    });
-  }
-
-  // Remove the item's media file if it exists
-  if (item.media && item.media !== "default.jpg") {
-    // Check if it's a photo or video based on file extension
-    const ext = path.extname(item.media).toLowerCase();
-    let mediaPath;
-
-    if ([".jpg", ".jpeg", ".png", ".gif"].includes(ext)) {
-      mediaPath = path.join(__dirname, "../public/item_photos", item.media);
-    } 
-
-    if (mediaPath && fs.existsSync(mediaPath)) {
-      fs.unlinkSync(mediaPath);
-    }
   }
 
   await Item.findByIdAndDelete(req.params.id);

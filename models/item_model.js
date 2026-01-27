@@ -4,38 +4,29 @@ const itemSchema = new mongoose.Schema(
   {
     itemName: {
       type: String,
-      required: [true, "Item name is required"],
+      required: true,
       trim: true,
     },
     description: {
       type: String,
-      required: [true, "Description is required"],
+      required: true,
       trim: true,
     },
     type: {
       type: String,
-      required: [true, "Item type is required"],
-      enum: ["lost", "found"],
-    },
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: [true, "Category is required"],
-    },
-    media: {
-      type: String,
-      required: [true, "Media is required"],
+      required: true,
       trim: true,
     },
-    mediaType: {
-      type: String,
-      enum: ["photo"],
-      default: "photo",
+    price: {
+      type: Number,
+      required: true,
     },
-
+    image: {
+      type: String,
+      default: "default-profile.png",
+    },
     status: {
       type: String,
-      required: [true, "Status is required"],
       enum: ["available", "claimed", "resolved"],
       default: "available",
     },
@@ -44,4 +35,5 @@ const itemSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
 module.exports = mongoose.model("Item", itemSchema);

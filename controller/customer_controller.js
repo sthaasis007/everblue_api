@@ -78,7 +78,7 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
     customer.email = email || customer.email;
     customer.password = password || customer.password;
     customer.phoneNumber = phoneNumber || customer.phoneNumber;
-  student.profilePicture = profilePicture || student.profilePicture;
+    customer.profilePicture = profilePicture || customer.profilePicture;
 
     if (password) {
         customer.password = password;
@@ -108,8 +108,8 @@ exports.deleteCustomer = asyncHandler(async (req, res) => {
     }
       // Remove the student's profile picture if it exists
     if (
-        student.profilePicture &&
-        student.profilePicture !== "default-profile.png"
+        customer.profilePicture &&
+        customer.profilePicture !== "default-profile.png"
     ) {
         const profilePicturePath = path.join(
         __dirname,

@@ -103,12 +103,6 @@ app.use(cors(corsOptions)); // Enable CORS with options
 app.use(limiter); // Apply rate limiting to all requests
 app.use(express.static(path.join(__dirname, "public"))); // Serve static files
 
-// // Routes
-// const batchRoutes = require("./routes/batch_route");
-// app.use("/api/v1/batches", batchRoutes);
-
-// const categoryRoutes = require("./routes/category_route");
-// app.use("/api/v1/categories", categoryRoutes);
 
 // Apply stricter rate limiting to login endpoint
 const customerRoutes = require("./routes/customer");
@@ -118,17 +112,6 @@ app.use("/everblue/customers", customerRoutes);
 const itemRoutes = require("./routes/item_route");
 app.use("/everblue/items", itemRoutes);
 
-// const commentRoutes = require("./routes/comment_route");
-// app.use("/api/v1/comments", commentRoutes);
-
-// const userRoutes = require("./routes/userRoutes");
-// const productRoutes = require("./routes/productRoutes");
-// const orderRoutes = require("./routes/orderRoutes");
-// const paymentRoutes = require("./routes/paymentRoutes");
-// app.use("/api/v1/users", userRoutes);
-// app.use("/api/v1/products", productRoutes);
-// app.use("/api/v1/orders", orderRoutes);
-// app.use("/api/v1/payments", paymentRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

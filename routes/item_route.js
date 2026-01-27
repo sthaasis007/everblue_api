@@ -16,10 +16,10 @@ const {
 router.post("/upload-photo", protect, uploadImage.single("ItemPhoto"), uploadItemPhoto);
 
 // CRUD routes
-router.post("/", protect, createItem);
-router.get("/", getAllItems);
+router.post("/new_item", protect, createItem);
+router.get("/", protect, getAllItems);
 router.get("/:id", getItemById);
-router.put("/:id", protect, updateItem);
+router.put("/:id", updateItem); // yo aaile chaleko xoina
 router.delete("/:id", protect, deleteItem);
 
 module.exports = router;
