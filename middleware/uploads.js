@@ -1,26 +1,41 @@
 const multer = require('multer');
+const fs = require('fs');
 const path = require('path');
-const maxSize = 2 * 1024 * 1024; // 2MB
+const maxSize = 50 * 1024 * 1024; // 50MB
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        if (file.fieldname === "profilePicture") {
-            cb(null, path.join("public" , "profile_picture" ));
-        } else if (file.fieldname === "ItemPhoto") {
-            cb(null, path.join("public" , "item_photo" ));
-        } else {
-            return cb(new Error("Invalid field name for upload"), false);
+        try {
+            if (file.fieldname === "profilePicture") {
+                const profilePath = path.resolve(__dirname, '..', 'public', 'profile_picture');
+                fs.mkdirSync(profilePath, { recursive: true });
+                cb(null, profilePath);
+                return;
+            } else if (file.fieldname === "ItemPhoto") {
+                const itemsPath = path.resolve(__dirname, '..', 'public', 'item_photo');
+                fs.mkdirSync(itemsPath, { recursive: true });
+                cb(null, itemsPath);
+                return;
+            } else {
+                return cb(new Error("Invalid field name for upload"), false);
+            }
+        } catch (err) {
+            return cb(err);
         }
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
-        let prefix = "file";
+        let filename;
+        
         if (file.fieldname === "profilePicture") {
-            prefix = "pro-pic";
+            const userId = req.user ? req.user._id : "unknown";
+            filename = `profile_${userId}${ext}`;
         } else if (file.fieldname === "ItemPhoto") {
-            prefix = "item-pic";
+            const timestamp = Date.now();
+            filename = `item-pic-${timestamp}${ext}`;
         }
-        cb(null, `${prefix}-${Date.now()}${ext}`);
+        
+        cb(null, filename);
     },
 });
 
@@ -43,7 +58,13 @@ const fileFilter = (req, file, cb) => {
 const uploadImage = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: maxSize },
+  limits: { 
+    fileSize: maxSize,
+    fieldNameSize: 200,
+    fieldSize: 200,
+    fields: 10,
+    files: 10,
+  },
 });
 
 // Export single upload for backward compatibility

@@ -15,24 +15,28 @@ const CustomerSchema = new mongoose.Schema({
         trim: true,
         lowercase: true,
         match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            "Please add a valid email",
+            /^[^\s@]+@gmail\.com$/,
+            "Email must be a valid Gmail address (example@gmail.com)",
         ],
     },
     password: {
         type: String,
         required: [true, "Please add a password"],
-        minlength: 6,
+        minlength: [6, "Password must be at least 6 characters long"],
         select: false, // Don't include password in queries by default
     },
     phoneNumber: {
         type: String,
-        required: true,
+        required: [true, "Please add a phone number"],
         trim: true,
+        match: [
+            /^\d{10}$/,
+            "Phone number must be exactly 10 digits",
+        ],
     },
     profilePicture: {
         type: String,
-        default: "default-profile.png",
+        default: null,
         trim: true,
     },
     createdAt: {
@@ -42,14 +46,10 @@ const CustomerSchema = new mongoose.Schema({
 });
 
 // Encrypt password using bcrypt
-CustomerSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) {
-        next();
-    } else {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        // next();
-    }
+CustomerSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Sign JWT and return
