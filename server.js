@@ -53,9 +53,11 @@ app.use(limiter);
 
 //  Routes
 const customerRoutes = require("./routes/customer");
+const itemRoutes = require("./routes/item_route");
 
 app.use("/everblue/customers/login", authLimiter);
 app.use("/everblue/customers", customerRoutes);
+app.use("/everblue/items", itemRoutes);
 
 //  Error Handler
 app.use(errorHandler);

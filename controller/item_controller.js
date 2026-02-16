@@ -5,8 +5,7 @@ const fs = require("fs");
 
 
 exports.createItem = asyncHandler(async (req, res) => {
-  const { itemName, description, type, price} =
-    req.body;
+  const { itemName, description, type, price, status, image } = req.body;
 
   // Create the item
   const item = await Item.create({
@@ -14,6 +13,8 @@ exports.createItem = asyncHandler(async (req, res) => {
     description,
     type,
     price,
+    status: status || "available",
+    image: image || "default-profile.png",
   });
 
   res.status(201).json({
@@ -77,6 +78,7 @@ exports.updateItem = asyncHandler(async (req, res) => {
     type,
     price,
     status,
+    image,
   } = req.body;
 
   const item = await Item.findById(req.params.id);
@@ -85,7 +87,29 @@ exports.updateItem = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Item not found" });
   }
 
-  // Update the item fields
+  // If new image is provided, delete old image
+  if (image && image !== item.image) {
+    if (item.image && item.image !== null && item.image !== "default.jpg") {
+      try {
+        let filename = item.image;
+        if (item.image.includes("/")) {
+          filename = path.basename(item.image);
+        }
+        
+        const oldImagePath = path.join(__dirname, "..", "public", "item_photo", filename);
+        
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+          console.log("Deleted old item image:", oldImagePath);
+        }
+      } catch (err) {
+        console.log("Old item image deletion error:", err);
+      }
+    }
+    item.image = image;
+  }
+
+  // Update other fields
   item.itemName = itemName || item.itemName;
   item.description = description || item.description;
   item.type = type || item.type;
@@ -107,6 +131,26 @@ exports.deleteItem = asyncHandler(async (req, res) => {
 
   if (!item) {
     return res.status(404).json({ message: "Item not found" });
+  }
+
+  // Delete item image if exists
+  if (item.image && item.image !== null && item.image !== "default.jpg") {
+    try {
+      // Handle full paths like "/public/item_photo/filename.jpg" or just filenames
+      let filename = item.image;
+      if (item.image.includes("/")) {
+        filename = path.basename(item.image);
+      }
+      
+      const imagePath = path.join(__dirname, "..", "public", "item_photo", filename);
+      
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+        console.log("Deleted item image:", imagePath);
+      }
+    } catch (err) {
+      console.log("Item image deletion error:", err);
+    }
   }
 
   await Item.findByIdAndDelete(req.params.id);
@@ -133,7 +177,7 @@ exports.uploadItemPhoto = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: req.file.filename,
+    data: `/public/item_photo/${req.file.filename}`,
     message: "Item photo uploaded successfully",
   });
 });

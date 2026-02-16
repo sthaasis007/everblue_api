@@ -81,19 +81,22 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
 
     // Handle profile picture update if file is provided
     if (req.file) {
-        // Delete old image if it exists
-        if (customer.profilePicture && customer.profilePicture !== null) {
-            const oldImagePath = path.join(customer.profilePicture);
-            if (fs.existsSync(oldImagePath)) {
-                try {
-                    fs.unlinkSync(oldImagePath);
-                } catch (err) {
-                    console.log("Old file deletion error:", err);
-                }
+      // Delete old image if it exists and is not the same file name
+      if (customer.profilePicture && customer.profilePicture !== null) {
+        const oldFilename = path.basename(customer.profilePicture);
+        if (oldFilename && oldFilename !== req.file.filename) {
+          const oldImagePath = path.join(__dirname, "..", "public", "profile_picture", oldFilename);
+          if (fs.existsSync(oldImagePath)) {
+            try {
+              fs.unlinkSync(oldImagePath);
+            } catch (err) {
+              console.log("Old file deletion error:", err);
             }
+          }
         }
-        // Store full path
-        customer.profilePicture = `/public/profile_picture/${req.file.filename}`;
+      }
+      // Store full path
+      customer.profilePicture = `/public/profile_picture/${req.file.filename}`;
     }
 
     if (password) {
@@ -174,14 +177,17 @@ exports.uploadProfilePicture = asyncHandler(async (req, res, next) => {
     return res.status(404).json({ message: "Customer not found" });
   }
 
-  // Delete old image if it exists
+  // Delete old image if it exists and is not the same file name
   if (customer.profilePicture && customer.profilePicture !== null) {
-    const oldImagePath = path.join(customer.profilePicture);
-    if (fs.existsSync(oldImagePath)) {
-      try {
-        fs.unlinkSync(oldImagePath);
-      } catch (err) {
-        console.log("Old file deletion error:", err);
+    const oldFilename = path.basename(customer.profilePicture);
+    if (oldFilename && oldFilename !== req.file.filename) {
+      const oldImagePath = path.join(__dirname, "..", "public", "profile_picture", oldFilename);
+      if (fs.existsSync(oldImagePath)) {
+        try {
+          fs.unlinkSync(oldImagePath);
+        } catch (err) {
+          console.log("Old file deletion error:", err);
+        }
       }
     }
   }
